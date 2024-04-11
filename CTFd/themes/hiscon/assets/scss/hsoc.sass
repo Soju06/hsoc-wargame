@@ -1,0 +1,296 @@
+
+$category-color-crypto: #21D78E
+$category-color-forensic: #A525FB
+$category-color-network: #FFA100
+$category-color-system: #CF1A1B
+$category-color-web: #44B9EC
+$category-color-misc: #4075FF
+
+body
+    background-color: #0e0f13
+    color: #fff
+
+.col-lg-36
+    flex: 0 0 auto
+    width: 28%
+    max-width: 24rem
+    min-width: 18rem
+
+.challenge-button
+    background-color: #292929
+    border-radius: 16px
+    box-shadow: none
+    padding: .7rem 1.6rem
+    margin: 0
+
+    &:hover
+        background-color: #393939 !important
+
+    &.solved
+        background-color: #0d6efd !important
+
+        &:hover
+            background-color: #1466e0 !important
+
+.challenge-inner
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+
+    .challenge-title
+        display: flex
+        justify-content: space-between
+        font-weight: bold
+        font-size: 1.2rem
+        width: 100%
+
+        span
+            font-size: 1.1rem
+            text-transform: uppercase
+
+    .challenge-value
+        color: #c9c9c9
+
+        &.points
+            color: #fff
+            font-weight: bold
+            font-size: 1.2rem
+
+    .challenge-color
+        // 색상 원
+        width: 2rem
+        height: 2rem
+        border-radius: 50%
+        background-color: $category-color-misc
+
+        &.crypto
+            background-color: $category-color-crypto
+        &.forensic
+            background-color: $category-color-forensic
+        &.network
+            background-color: $category-color-network
+        &.system
+            background-color: $category-color-system
+        &.web
+            background-color: $category-color-web
+        &.solved
+            background-color: #fff
+
+.challenge-body
+    width: 100%
+    margin-right: auto
+    margin-left: auto
+
+    @media (min-width: 576px)
+        max-width: 540px
+
+    @media (min-width: 768px)
+        max-width: 720px
+
+    @media (min-width: 992px)
+        max-width: 960px
+
+    .challenge-name
+        font-weight: bold
+
+    .challenge-value
+        font-weight: bold
+
+    .challenge-category
+        text-transform: uppercase
+
+.challenges-row
+    display: flex
+    flex-wrap: wrap
+
+    @media (max-width: 768px)
+        justify-content: center
+
+.modal-dialog-full
+    margin: 0
+    margin-top: 70px
+    width: 100%
+    height: 100%
+    transform: none !important
+    transition: none !important
+    max-width: none !important
+
+.modal-content
+    min-height: 100%
+    height: auto
+    border: none
+    border-radius: 0
+    background-color: #151515
+
+.table-striped
+    display: table
+    background-color: #202020
+    border-radius: .6rem
+    overflow: hidden
+    color: white
+
+    >thead td
+        background-color: #0d6efd
+
+    >tbody
+        >tr
+            &:nth-of-type(even)
+                background-color: #2f2f2f
+
+                >
+                    background-color: none !important
+
+            &:nth-of-type(odd)>*
+                color: #fff
+
+thead, tfoot, tr, td, th
+    border-style: none
+    border: none
+
+input.form-control
+    background-color: #292929
+    color: #BCBCBC
+    border-radius: .6rem
+    padding: .9rem 1.2rem
+    transition: background-color .2s
+    border: none
+
+    &:focus
+        background-color: #2c2c2c
+        color: #BCBCBC
+        box-shadow: none
+        border: none
+
+.btn
+    border-radius: .6rem
+    padding: .9rem 1.2rem
+    border-color: none !important
+    box-shadow: none !important
+
+    &.btn-primary
+        background-color: #0d6efd
+        border: none !important
+
+        &:hover
+            background-color: #1466e0
+
+.challenge-input
+    border-top-right-radius: 0 !important
+    border-bottom-right-radius: 0 !important
+
+.challenge-submit
+    width: 12rem
+    height: auto
+    border-top-left-radius: 0
+    border-bottom-left-radius: 0
+
+a
+    color: #fff
+    transition: color .2s
+    text-decoration: none
+
+    &:hover
+        color: #ffffffc9
+
+.navbar-brand
+    padding: 0
+
+.navbar
+    height: 70px
+    background-color: #202020 !important
+
+main
+    margin-top: 70px
+
+.alert
+    border-radius: .6rem !important
+    border: none !important
+    color: #fff !important
+
+    &.alert-info
+        background-color: #292929 !important
+
+        >.btn-close
+            filter: invert(1)
+
+    &.alert-success
+        background-color: #12bb77 !important
+
+    &.alert-danger
+        background-color: #dc3545 !important
+
+#docker_container
+    border-radius: .6rem
+    background-color: #292929
+    padding: 1.2rem
+
+    .docker-title
+        font-weight: bold
+        font-size: 1.2rem
+
+    .docker-connections
+        code
+            font-size: 1rem
+
+.bold
+    font-weight: bold
+
+.notification-card
+    background-color: #292929
+    border-radius: 1.4rem
+
+    &.notification-card-important
+        background-color: #E84646
+
+    &.notification-card-primary
+        background-color: #3e69d8
+
+.notification-body
+    h1, h2, h3, h4, h5, h6
+        font-weight: bold
+
+.form-control:disabled, .form-control[readonly]
+    background-color: #191919
+    color: #808080
+
+[type=checkbox]
+    width: 1.2rem
+    height: 1.2rem
+    color: dodgerblue
+    vertical-align: middle
+    -webkit-appearance: none
+    background: none
+    border: 0
+    outline: 0
+    flex-grow: 0
+    border-radius: 50%
+    background-color: #FFFFFF
+    color: #1C5BFF
+    cursor: pointer
+
+[type=checkbox]::before
+    content: ""
+    color: transparent
+    display: block
+    width: inherit
+    height: inherit
+    border-radius: inherit
+    border: 0
+    background-color: transparent
+    background-size: contain
+    box-shadow: inset 0 0 0 1px #CCD3D8
+
+[type=checkbox]:checked
+    background-color: currentcolor
+
+[type=checkbox]:checked::before
+    box-shadow: none
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E %3Cpath d='M15.88 8.29L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0L17.3 9.7a.996.996 0 0 0 0-1.41c-.39-.39-1.03-.39-1.42 0z' fill='%23fff'/%3E %3C/svg%3E")
+
+[type=checkbox]:disabled
+    background-color: #CCD3D8
+    opacity: 0.84
+    cursor: not-allowed
+
+.userTbody > tr > td:not(:first-child)
+    padding-left: .8rem !important

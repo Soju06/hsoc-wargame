@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row auth-wrapper login">
+    <div class="auth-container">
+      <h1 class="auth-title">
+        HISCON 로그인
+      </h1>
+      {% include "components/errors.html" %}
+
+      {% if integrations.mlc() %}
+      <a class="btn btn-secondary btn-lg btn-block w-100" href="{{ url_for('auth.oauth_login') }}">
+        Login with Major League Cyber
+      </a>
+
+      <hr>
+      {% endif %}
+
+      {% with form = Forms.auth.LoginForm() %}
+      <form method="post" accept-charset="utf-8" autocomplete="off">
+        <div class="mb-4 auth-input-container">
+          <b>닉네임 또는 이메일</b>
+          {{ form.name(class="form-control.strong auth-input", value=name) }}
+        </div>
+
+        <div class="mb-4 auth-input-container">
+          <b>비밀번호</b>
+          {{ form.password(class="form-control.strong auth-input", value=password) }}
+        </div>
+
+        <div class="column pt-3">
+          <a class="align-middle auth-text" href="{{ url_for('auth.reset_password') }}">
+            {% trans %}비밀번호를 잊어버리셨나요?{% endtrans %}
+          </a>
+          {{ form.submit(class="btn btn-block auth-btn", value="로그인") }}
+        </div>
+
+        {{ form.nonce() }}
+      </form>
+      {% endwith %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ from CTFd.utils.countries import lookup_country_code
 from CTFd.utils.user import get_current_user, is_admin
 
 EMAIL_REGEX = r"(^[^@\s]+@[^@\s]+\.[^@\s]+$)"
+PHONE_REGEX = r"^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$"
 
 
 def is_safe_url(target):
@@ -18,12 +19,24 @@ def is_safe_url(target):
     return test_url.scheme in ("http", "https") and ref_url.netloc == test_url.netloc
 
 
+def validate_integer(number):
+    try:
+        int(number)
+        return True
+    except:
+        return False
+
+
 def validate_url(url):
     return urlparse(url).scheme.startswith("http")
 
 
 def validate_email(email):
     return bool(re.match(EMAIL_REGEX, email))
+
+
+def validate_phone(phone):
+    return bool(re.match(PHONE_REGEX, phone))
 
 
 def unique_email(email, model=Users):

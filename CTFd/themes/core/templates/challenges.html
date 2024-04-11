@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ url_for('views.themes', path='css/challenge-board.css') }}">
+<link rel="stylesheet" href="{{ url_for('views.themes', path='css/challenge-board.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -35,5 +35,5 @@
 {% endblock %}
 
 {% block entrypoint %}
-	<script defer src="{{ url_for('views.themes', path='js/pages/challenges.js') }}"></script>
+<script defer src="{{ url_for('views.themes', path='js/pages/challenges.js') }}"></script>
 {% endblock %}

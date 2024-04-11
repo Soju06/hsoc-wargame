@@ -7,6 +7,17 @@ from CTFd.forms.fields import SubmitField
 
 class NotificationForm(BaseForm):
     title = StringField("Title", description="Notification title")
+    level = RadioField(
+        "느그 공지 레벨",
+        choices=[
+            ("default", "Default"),
+            ("important", "Important"),
+            ("primary", "Primary"),
+        ],
+        default="default",
+        description="Default 기본 색, Important 빨간색, Primary 파란색 ㅇㅇ",
+        validators=[InputRequired()],
+    )
     content = TextAreaField(
         "Content",
         description="Notification contents. Can consist of HTML and/or Markdown.",

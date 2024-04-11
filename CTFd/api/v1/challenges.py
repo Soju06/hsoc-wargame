@@ -524,7 +524,7 @@ class ChallengeAttempt(Resource):
                     "success": True,
                     "data": {
                         "status": "paused",
-                        "message": "{} is paused".format(config.ctf_name()),
+                        "message": "대회가 일시정지 되었습니다.",
                     },
                 },
                 403,
@@ -694,7 +694,7 @@ class ChallengeAttempt(Resource):
                 "success": True,
                 "data": {
                     "status": "already_solved",
-                    "message": "You already solved this",
+                    "message": "이미 이 문제를 풀었습니다.",
                 },
             }
 

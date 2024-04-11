@@ -50,13 +50,9 @@ class UserListSuccessResponse(PaginatedAPIListSuccessResponse):
     data: List[UserModel]
 
 
-users_namespace.schema_model(
-    "UserDetailedSuccessResponse", UserDetailedSuccessResponse.apidoc()
-)
+users_namespace.schema_model("UserDetailedSuccessResponse", UserDetailedSuccessResponse.apidoc())
 
-users_namespace.schema_model(
-    "UserListSuccessResponse", UserListSuccessResponse.apidoc()
-)
+users_namespace.schema_model("UserListSuccessResponse", UserListSuccessResponse.apidoc())
 
 
 @users_namespace.route("")
@@ -142,9 +138,7 @@ class UserList(Resource):
                 "APISimpleErrorResponse",
             ),
         },
-        params={
-            "notify": "Whether to send the created user an email with their credentials"
-        },
+        params={"notify": "Whether to send the created user an email with their credentials"},
     )
     def post(self):
         req = request.get_json()
@@ -220,9 +214,7 @@ class UserPublic(Resource):
         data["id"] = user_id
 
         # Admins should not be able to ban themselves
-        if data["id"] == session["id"] and (
-            data.get("banned") is True or data.get("banned") == "true"
-        ):
+        if data["id"] == session["id"] and (data.get("banned") is True or data.get("banned") == "true"):
             return (
                 {"success": False, "errors": {"id": "You cannot ban yourself"}},
                 400,
@@ -311,6 +303,7 @@ class UserPrivate(Resource):
     def patch(self):
         user = get_current_user()
         data = request.get_json()
+
         schema = UserSchema(view="self", instance=user, partial=True)
         response = schema.load(data)
         if response.errors:

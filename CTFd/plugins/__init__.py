@@ -207,3 +207,4 @@ def init_plugins(app):
 
     app.jinja_env.globals.update(get_admin_plugin_menu_bar=get_admin_plugin_menu_bar)
     app.jinja_env.globals.update(get_user_page_menu_bar=get_user_page_menu_bar)
+

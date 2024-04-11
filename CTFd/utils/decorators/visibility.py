@@ -37,9 +37,7 @@ def check_score_visibility(f):
                     abort(403)
                 else:
                     return (
-                        render_template(
-                            "errors/403.html", error="Scores are currently hidden"
-                        ),
+                        render_template("errors/403.html", error="Scores are currently hidden"),
                         403,
                     )
 
@@ -78,7 +76,7 @@ def check_challenge_visibility(f):
                     else:
                         abort(
                             403,
-                            description="Challenge Visibility is set to Admins Only",
+                            description="대회를 준비하고 있습니다.",
                         )
                 else:
                     return redirect(url_for("auth.login", next=request.full_path))

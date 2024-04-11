@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+  <div class="d-flex justify-content-center align-items-center my-5 w-100">
+    <div class="d-flex flex-column align-items-center gap-3 w-100">
+      <div class="auth-container register">
+        {{registration_text | safe}}
+      </div>
+      <div class="auth-container register">
+        <h1 class="auth-title">
+          HISCON 회원가입
+        </h1>
+        {% include "components/errors.html" %}
+
+        {% if integrations.mlc() %}
+        <a class="btn btn-secondary btn-lg btn-block w-100" href="{{ url_for('auth.oauth_login') }}">
+          Login with Major League Cyber
+        </a>
+
+        <hr>
+        {% endif %}
+
+        {% with form = Forms.auth.RegistrationForm() %}
+        {% from "macros/forms.html" import render_extra_fields %}
+
+        <form method="post" accept-charset="utf-8" autocomplete="off" role="form">
+          <div class="mb-4 auth-input-container">
+            <b>소속 또는 학교명</b>
+            {{ form.affiliation(class="form-control.strong auth-input", value=affiliation, placeholder="한세사이버보안중학교")
+            }}
+          </div>
+
+          <hr>
+
+          <div class="auth-content">
+
+            <div class="col auth-left">
+              <div class="mb-4 auth-input-container">
+                <b>닉네임</b>
+                {{ form.name(class="form-control.strong auth-input", value=name) }}
+              </div>
+
+              <hr>
+
+              <div class="mb-4 auth-input-container">
+                <b>이메일</b>
+                {{ form.email(class="form-control.strong auth-input", value=email) }}
+              </div>
+
+              <hr>
+
+              <div class="mb-4 auth-input-container">
+                <b>비밀번호</b>
+                {{ form.password(class="form-control.strong auth-input", value=password) }}
+              </div>
+
+              <div class="mb-4 auth-input-container">
+                <b>비밀번호 확인</b>
+                {{ form.confirm(class="form-control.strong auth-input", value=confirm) }}
+              </div>
+
+            </div>
+            <div class="auth-divider mx-4"></div>
+            <div class="col auth-right">
+              <div class="mb-4 auth-input-container">
+                <b>이름</b>
+                {{ form.realname(class="form-control.strong auth-input", value=realname, placeholder="실명을 입력해주세요.") }}
+              </div>
+
+              <hr>
+
+              <div class="mb-4 auth-input-container">
+                <b>학번</b>
+                <div class="row">
+                  <div class="col px-2">
+                    {{ form.grade(class="form-control.strong auth-input w-100", value=grade, placeholder="학년") }}
+                  </div>
+                  <div class="col px-2">
+                    {{ form.classroom(class="form-control.strong auth-input w-100", value=classroom, placeholder="반")
+                    }}
+                  </div>
+                  <div class="col px-2">
+                    {{ form.number(class="form-control.strong auth-input w-100", value=number, placeholder="번호") }}
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+
+              <div class="mb-4 auth-input-container">
+                <b>전화번호</b>
+                {{ form.phone(class="form-control.strong auth-input", value=phone,
+                placeholder="하이픈(-)을 제외한 숫자만 입력해주세요.") }}
+              </div>
+
+              <div class="mb-4 auth-input-container">
+                <b>생년월일</b>
+                {{ form.birthdate(class="form-control.strong auth-input", value=birthdate) }}
+              </div>
+            </div>
+          </div>
+
+          {{ form.nonce() }}
+
+          {{ render_extra_fields(form.extra) }}
+
+          <hr>
+
+          {{ form.agree() }} 상기 내용이 사실이며, 본인인 것을 확인합니다.
+
+          <div class="text-center d-flex flex-column gap-2">
+            {{ form.submit(class="btn btn-block auth-btn", value="회원가입") }}
+
+            <a class="auth-text" href="{{ url_for('auth.login') }}">
+              {% trans %}이미 계정이 있으신가요?{% endtrans %}
+            </a>
+          </div>
+
+          {% if Configs.tos_or_privacy %}
+          <div class="row pt-3">
+            <div class="col-md-12 text-center">
+              <small class="text-muted text-center">
+                By registering, you agree to the
+                <a href="{{ Configs.privacy_link }}" rel="noopener" target="_blank">privacy policy</a>
+                and <a href="{{ Configs.tos_link }}" rel="noopener" target="_blank">terms of service</a>
+              </small>
+            </div>
+          </div>
+          {% endif %}
+      </div>
+      </form>
+      {% endwith %}
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

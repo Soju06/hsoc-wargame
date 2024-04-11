@@ -22,12 +22,43 @@
 		{{ form.website(class="form-control", autocomplete="off") }}
 	</div>
 	<div class="form-group">
+		{{ form.country.label }}
+		{{ form.country(class="form-control custom-select", autocomplete="off") }}
+	</div>
+
+	<div class="form-group">
+		{{ form.phone.label }}
+		{{ form.phone(class="form-control", autocomplete="off") }}
+	</div>
+
+	<div class="form-group">
+		{{ form.birthdate.label }}
+		{{ form.birthdate(class="form-control", autocomplete="off") }}
+	</div>
+
+	<div class="form-group">
+		{{ form.realname.label }}
+		{{ form.realname(class="form-control", autocomplete="off") }}
+	</div>
+
+	<div class="form-group">
 		{{ form.affiliation.label }}
 		{{ form.affiliation(class="form-control", autocomplete="off") }}
 	</div>
+
 	<div class="form-group">
-		{{ form.country.label }}
-		{{ form.country(class="form-control custom-select", autocomplete="off") }}
+		{{ form.grade.label }}
+		{{ form.grade(class="form-control", autocomplete="off") }}
+	</div>
+
+	<div class="form-group">
+		{{ form.classroom.label }}
+		{{ form.classroom(class="form-control", autocomplete="off") }}
+	</div>
+
+	<div class="form-group">
+		{{ form.number.label }}
+		{{ form.number(class="form-control", autocomplete="off") }}
 	</div>
 
 	{{ render_extra_fields(form.extra) }}

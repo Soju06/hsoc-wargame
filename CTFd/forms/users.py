@@ -1,7 +1,7 @@
 from flask_babel import lazy_gettext as _l
 from wtforms import BooleanField, PasswordField, SelectField, StringField
-from wtforms.fields.html5 import EmailField
-from wtforms.validators import InputRequired
+from wtforms.fields.html5 import EmailField, DateField, IntegerField
+from wtforms.validators import InputRequired, NumberRange
 
 from CTFd.constants.config import Configs
 from CTFd.constants.languages import SELECT_LANGUAGE_LIST
@@ -71,13 +71,9 @@ def attach_custom_user_fields(form_cls, **kwargs):
             validators.append(InputRequired())
 
         if field.field_type == "text":
-            input_field = StringField(
-                field.name, description=field.description, validators=validators
-            )
+            input_field = StringField(field.name, description=field.description, validators=validators)
         elif field.field_type == "boolean":
-            input_field = BooleanField(
-                field.name, description=field.description, validators=validators
-            )
+            input_field = BooleanField(field.name, description=field.description, validators=validators)
 
         setattr(form_cls, f"fields[{field.id}]", input_field)
 
@@ -150,12 +146,32 @@ class PublicUserSearchForm(BaseForm):
 
 
 class UserBaseForm(BaseForm):
-    name = StringField("User Name", validators=[InputRequired()])
+    name = StringField("Nickname", validators=[InputRequired()])
     email = EmailField("Email", validators=[InputRequired()])
     language = SelectField(_l("Language"), choices=SELECT_LANGUAGE_LIST)
     password = PasswordField("Password")
     website = StringField("Website")
-    affiliation = StringField("Affiliation")
+
+    phone = StringField(_l("Phone Number"), validators=[InputRequired()])
+    birthdate = DateField(_l("Birthdate"), format="%Y-%m-%d", validators=[InputRequired()])
+    realname = StringField(_l("Name"), validators=[InputRequired()])
+    affiliation = StringField(_l("Affiliation"), validators=[InputRequired()])
+    grade = IntegerField(
+        _l("Grade"),
+        validators=[InputRequired(), NumberRange(min=1, max=3)],
+        render_kw={"min": 1, "max": 3},
+    )
+    classroom = IntegerField(
+        _l("Classroom"),
+        validators=[InputRequired(), NumberRange(min=1, max=15)],
+        render_kw={"min": 1, "max": 15},
+    )
+    number = IntegerField(
+        _l("Number"),
+        validators=[InputRequired(), NumberRange(min=1, max=40)],
+        render_kw={"min": 1, "max": 40},
+    )
+
     country = SelectField("Country", choices=SELECT_COUNTRIES_LIST)
     type = SelectField("Type", choices=[("user", "User"), ("admin", "Admin")])
     verified = BooleanField("Verified")

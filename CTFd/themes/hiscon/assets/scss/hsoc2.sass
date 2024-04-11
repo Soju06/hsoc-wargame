@@ -1,0 +1,133 @@
+.user
+    color: white
+
+.container-title
+    margin-bottom: 1.6rem
+    font-size: 2.4rem
+    font-weight: 700
+
+.auth-input-container
+    display: flex
+    flex-direction: column
+    row-gap: 0.6rem
+
+.auth-input-container>b
+    color: #BCBCBC
+    font-weight: 500
+
+.auth-title
+    text-align: center
+    font-size: 2rem
+    font-weight: 700
+    margin-bottom: 3rem
+
+.auth-input
+    padding: 0.8rem
+    border-radius: 0.8rem
+    background-color: #292929
+    border: none
+    color: white
+
+.auth-input:focus
+    background-color: #292929
+    box-shadow: none
+    border: none
+    outline: none
+    color: white
+
+.auth-input::placeholder
+    color: #949494
+
+.auth-text
+    color: #537ADF
+
+.auth-text:hover
+    color: #537ADF
+
+.auth-wrapper
+    position: absolute
+    left: 0
+    top: 70px
+    height: auto
+    width: 100%
+    display: flex
+    flex-direction: column
+    align-items: safe center
+    row-gap: 1.4rem
+
+    @media (max-width: 768px)
+        background-color: #212121
+
+    &.login
+        top: 0
+        height: 100%
+        justify-content: safe center
+
+.auth-container
+    width: 36rem
+    max-width: 100%
+    padding: 2.4rem 1.6rem
+    border-radius: 1.4rem
+    background-color: #212121
+
+    &.register
+        width: 60rem
+
+        @media (max-width: 62rem)
+            width: 36rem
+
+.auth-content
+    display: flex
+    flex-direction: row
+    row-gap: 1.4rem
+
+    @media (max-width: 62rem)
+        flex-direction: column
+
+.auth-divider
+    @media (max-width: 62rem)
+        display: none
+
+.auth-btn
+    color: white
+    width: 100%
+    padding: 0.8rem 0
+    border-radius: 0.8rem
+    background-color: #1C5BFF
+    font-size: 1.1rem
+    font-weight: 600
+    margin-top: 1rem
+
+.auth-btn:hover
+    color: white
+
+.score-number
+    color: white !important
+
+.score-score
+    color: white !important
+
+.userTbody>tr>td
+    padding-left: 2rem !important
+
+.scoreTable
+    >tbody td
+        &:nth-child(1)
+            border-bottom-left-radius: 1.4rem
+
+        &:nth-last-child(1)
+            border-bottom-right-radius: 1.4rem
+
+.navbar-container
+    background-color: #212121
+
+.dd>p
+    @media (max-width: 600px)
+        font-size: 3.6rem
+
+input[type="date"]
+    width: 100%
+    padding: 0.8rem
+    min-height: 50px
+    -webkit-appearance: none
+    -moz-appearance: none

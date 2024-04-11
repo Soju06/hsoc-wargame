@@ -42,6 +42,7 @@ class Notifications(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
     content = db.Column(db.Text)
+    level = db.Column(db.String(16))
     date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
@@ -154,9 +155,7 @@ class Hints(db.Model):
     __tablename__ = "hints"
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(80), default="standard")
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
     content = db.Column(db.Text)
     cost = db.Column(db.Integer, default=0)
     requirements = db.Column(db.JSON)
@@ -234,9 +233,7 @@ class Awards(db.Model):
 class Tags(db.Model):
     __tablename__ = "tags"
     id = db.Column(db.Integer, primary_key=True)
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
     value = db.Column(db.String(80))
 
     def __init__(self, *args, **kwargs):
@@ -255,14 +252,10 @@ class Topics(db.Model):
 class ChallengeTopics(db.Model):
     __tablename__ = "challenge_topics"
     id = db.Column(db.Integer, primary_key=True)
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
     topic_id = db.Column(db.Integer, db.ForeignKey("topics.id", ondelete="CASCADE"))
 
-    topic = db.relationship(
-        "Topics", foreign_keys="ChallengeTopics.topic_id", lazy="select"
-    )
+    topic = db.relationship("Topics", foreign_keys="ChallengeTopics.topic_id", lazy="select")
 
     def __init__(self, *args, **kwargs):
         super(ChallengeTopics, self).__init__(**kwargs)
@@ -280,16 +273,12 @@ class Files(db.Model):
         super(Files, self).__init__(**kwargs)
 
     def __repr__(self):
-        return "<File type={type} location={location}>".format(
-            type=self.type, location=self.location
-        )
+        return "<File type={type} location={location}>".format(type=self.type, location=self.location)
 
 
 class ChallengeFiles(Files):
     __mapper_args__ = {"polymorphic_identity": "challenge"}
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
 
     def __init__(self, *args, **kwargs):
         super(ChallengeFiles, self).__init__(**kwargs)
@@ -306,9 +295,7 @@ class PageFiles(Files):
 class Flags(db.Model):
     __tablename__ = "flags"
     id = db.Column(db.Integer, primary_key=True)
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
     type = db.Column(db.String(80))
     content = db.Column(db.Text)
     data = db.Column(db.Text)
@@ -338,6 +325,14 @@ class Users(db.Model):
     # Supplementary attributes
     website = db.Column(db.String(128))
     affiliation = db.Column(db.String(128))
+    phone = db.Column(db.String(32))
+
+    realname = db.Column(db.String(128))
+    birthdate = db.Column(db.DateTime)
+    grade = db.Column(db.Integer)
+    classroom = db.Column(db.Integer)
+    number = db.Column(db.Integer)
+
     country = db.Column(db.String(32))
     bracket = db.Column(db.String(32))
     hidden = db.Column(db.Boolean, default=False)
@@ -420,10 +415,7 @@ class Users(db.Model):
     @property
     def filled_all_required_fields(self):
         required_user_fields = {
-            u.id
-            for u in UserFields.query.with_entities(UserFields.id)
-            .filter_by(required=True)
-            .all()
+            u.id for u in UserFields.query.with_entities(UserFields.id).filter_by(required=True).all()
         }
         submitted_user_fields = {
             u.field_id
@@ -437,9 +429,7 @@ class Users(db.Model):
         if admin:
             return self.field_entries
 
-        return [
-            entry for entry in self.field_entries if entry.field.public and entry.value
-        ]
+        return [entry for entry in self.field_entries if entry.field.public and entry.value]
 
     def get_solves(self, admin=False):
         from CTFd.utils import get_config
@@ -544,9 +534,7 @@ class Teams(db.Model):
     password = db.Column(db.String(128))
     secret = db.Column(db.String(128))
 
-    members = db.relationship(
-        "Users", backref="team", foreign_keys="Users.team_id", lazy="joined"
-    )
+    members = db.relationship("Users", backref="team", foreign_keys="Users.team_id", lazy="joined")
 
     # Supplementary attributes
     website = db.Column(db.String(128))
@@ -610,10 +598,7 @@ class Teams(db.Model):
     @property
     def filled_all_required_fields(self):
         required_team_fields = {
-            u.id
-            for u in TeamFields.query.with_entities(TeamFields.id)
-            .filter_by(required=True)
-            .all()
+            u.id for u in TeamFields.query.with_entities(TeamFields.id).filter_by(required=True).all()
         }
         submitted_team_fields = {
             u.field_id
@@ -627,9 +612,7 @@ class Teams(db.Model):
         if admin:
             return self.field_entries
 
-        return [
-            entry for entry in self.field_entries if entry.field.public and entry.value
-        ]
+        return [entry for entry in self.field_entries if entry.field.public and entry.value]
 
     def get_invite_code(self):
         from flask import current_app  # noqa: I001
@@ -692,9 +675,7 @@ class Teams(db.Model):
 
         member_ids = [member.id for member in self.members]
 
-        solves = Solves.query.filter(Solves.user_id.in_(member_ids)).order_by(
-            Solves.date.desc()
-        )
+        solves = Solves.query.filter(Solves.user_id.in_(member_ids)).order_by(Solves.date.desc())
 
         freeze = get_config("freeze")
         if freeze and admin is False:
@@ -708,9 +689,7 @@ class Teams(db.Model):
 
         member_ids = [member.id for member in self.members]
 
-        fails = Fails.query.filter(Fails.user_id.in_(member_ids)).order_by(
-            Fails.date.desc()
-        )
+        fails = Fails.query.filter(Fails.user_id.in_(member_ids)).order_by(Fails.date.desc())
 
         freeze = get_config("freeze")
         if freeze and admin is False:
@@ -724,9 +703,7 @@ class Teams(db.Model):
 
         member_ids = [member.id for member in self.members]
 
-        awards = Awards.query.filter(Awards.user_id.in_(member_ids)).order_by(
-            Awards.date.desc()
-        )
+        awards = Awards.query.filter(Awards.user_id.in_(member_ids)).order_by(Awards.date.desc())
 
         freeze = get_config("freeze")
         if freeze and admin is False:
@@ -768,9 +745,7 @@ class Teams(db.Model):
 class Submissions(db.Model):
     __tablename__ = "submissions"
     id = db.Column(db.Integer, primary_key=True)
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id", ondelete="CASCADE"))
     ip = db.Column(db.String(46))
@@ -781,9 +756,7 @@ class Submissions(db.Model):
     # Relationships
     user = db.relationship("Users", foreign_keys="Submissions.user_id", lazy="select")
     team = db.relationship("Teams", foreign_keys="Submissions.team_id", lazy="select")
-    challenge = db.relationship(
-        "Challenges", foreign_keys="Submissions.challenge_id", lazy="select"
-    )
+    challenge = db.relationship("Challenges", foreign_keys="Submissions.challenge_id", lazy="select")
 
     __mapper_args__ = {"polymorphic_on": type}
 
@@ -810,8 +783,7 @@ class Submissions(db.Model):
     @staticmethod
     def get_child(type):
         child_classes = {
-            x.polymorphic_identity: x.class_
-            for x in Submissions.__mapper__.self_and_descendants
+            x.polymorphic_identity: x.class_ for x in Submissions.__mapper__.self_and_descendants
         }
         return child_classes[type]
 
@@ -826,9 +798,7 @@ class Solves(Submissions):
         db.UniqueConstraint("challenge_id", "team_id"),
         {},
     )
-    id = db.Column(
-        None, db.ForeignKey("submissions.id", ondelete="CASCADE"), primary_key=True
-    )
+    id = db.Column(None, db.ForeignKey("submissions.id", ondelete="CASCADE"), primary_key=True)
     challenge_id = column_property(
         db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")),
         Submissions.challenge_id,
@@ -844,9 +814,7 @@ class Solves(Submissions):
 
     user = db.relationship("Users", foreign_keys="Solves.user_id", lazy="select")
     team = db.relationship("Teams", foreign_keys="Solves.team_id", lazy="select")
-    challenge = db.relationship(
-        "Challenges", foreign_keys="Solves.challenge_id", lazy="select"
-    )
+    challenge = db.relationship("Challenges", foreign_keys="Solves.challenge_id", lazy="select")
 
     __mapper_args__ = {"polymorphic_identity": "correct"}
 
@@ -966,9 +934,7 @@ class Comments(db.Model):
 
 class ChallengeComments(Comments):
     __mapper_args__ = {"polymorphic_identity": "challenge"}
-    challenge_id = db.Column(
-        db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE")
-    )
+    challenge_id = db.Column(db.Integer, db.ForeignKey("challenges.id", ondelete="CASCADE"))
 
 
 class UserComments(Comments):
@@ -1015,9 +981,7 @@ class FieldEntries(db.Model):
     value = db.Column(db.JSON)
     field_id = db.Column(db.Integer, db.ForeignKey("fields.id", ondelete="CASCADE"))
 
-    field = db.relationship(
-        "Fields", foreign_keys="FieldEntries.field_id", lazy="joined"
-    )
+    field = db.relationship("Fields", foreign_keys="FieldEntries.field_id", lazy="joined")
 
     __mapper_args__ = {"polymorphic_identity": "standard", "polymorphic_on": type}
 

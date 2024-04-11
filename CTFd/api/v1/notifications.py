@@ -144,9 +144,11 @@ class NotificantionList(Resource):
 
         # Grab additional settings
         notif_type = req.get("type", "alert")
+        notif_level = req.get("level", "default")
         notif_sound = req.get("sound", True)
         response.data["type"] = notif_type
         response.data["sound"] = notif_sound
+        response.data["level"] = notif_level
 
         current_app.events_manager.publish(data=response.data, type="notification")
 

@@ -1,0 +1,10 @@
+{% extends "challenge.html" %}
+{% block description %}
+{{ challenge.html }}
+<div class='mt-5 mb-4' id='docker_container'>
+    <h4 class="docker-title">컨테이너 접속 정보</h4>
+    <a onclick="start_container('{{ challenge.docker_image | safe }}');" class='btn btn-primary mt-2'>
+        <small style='color:white;'><i class="fas fa-play"></i> 컨테이너 실행하기</small>
+    </a>
+</div>
+{% endblock %}

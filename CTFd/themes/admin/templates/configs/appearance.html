@@ -5,8 +5,8 @@
 				Competition Name
 				<small class="form-text text-muted">Competition name displayed instead of a logo</small>
 			</label>
-			<input class="form-control" id='ctf_name' name='ctf_name' type='text' placeholder="CTF Name"
-				   {% if ctf_name is defined and ctf_name != None %}value="{{ ctf_name }}"{% endif %}>
+			<input class="form-control" id='ctf_name' name='ctf_name' type='text' placeholder="CTF Name" {% if ctf_name
+				is defined and ctf_name !=None %}value="{{ ctf_name }}" {% endif %}>
 		</div>
 
 		<div class="form-group">
@@ -16,7 +16,19 @@
 					Description for the CTF
 				</small>
 			</label>
-			<textarea class="form-control" type="text" id="ctf_description" name="ctf_description" rows="5">{{ ctf_description }}</textarea>
+			<textarea class="form-control" type="text" id="ctf_description" name="ctf_description"
+				rows="5">{{ ctf_description }}</textarea>
+		</div>
+
+		<div class="form-group">
+			<label>
+				느그가입 내용<br>
+				<small class="form-text text-muted">
+					회원가입 내용 XSS 가능이요~
+				</small>
+			</label>
+			<textarea class="form-control" type="text" id="ctf_registration_text" name="ctf_registration_text"
+				rows="5">{{ ctf_registration_text }}</textarea>
 		</div>
 
 		<button type="submit" class="btn btn-md btn-primary float-right">Update</button>

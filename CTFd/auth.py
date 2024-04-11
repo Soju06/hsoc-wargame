@@ -1,4 +1,5 @@
-import base64  # noqa: I001
+import base64
+from datetime import datetime  # noqa: I001
 
 import requests
 from flask import Blueprint, abort
@@ -14,6 +15,7 @@ from CTFd.utils import validators
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.config.integrations import mlc_registration
 from CTFd.utils.config.visibility import registration_visible
+from CTFd.utils.config.pages import build_markdown
 from CTFd.utils.crypto import verify_password
 from CTFd.utils.decorators import ratelimit
 from CTFd.utils.decorators.visibility import check_registration_visibility
@@ -40,13 +42,9 @@ def confirm(data=None):
         try:
             user_email = unserialize(data, max_age=1800)
         except (BadTimeSignature, SignatureExpired):
-            return render_template(
-                "confirm.html", errors=["Your confirmation link has expired"]
-            )
+            return render_template("confirm.html", errors=["Your confirmation link has expired"])
         except (BadSignature, TypeError, base64.binascii.Error):
-            return render_template(
-                "confirm.html", errors=["Your confirmation token is invalid"]
-            )
+            return render_template("confirm.html", errors=["Your confirmation token is invalid"])
 
         user = Users.query.filter_by(email=user_email).first_or_404()
         if user.verified:
@@ -83,9 +81,7 @@ def confirm(data=None):
                 format="[{date}] {ip} - {name} initiated a confirmation email resend",
                 name=user.name,
             )
-            return render_template(
-                "confirm.html", infos=[f"Confirmation email sent to {user.email}!"]
-            )
+            return render_template("confirm.html", infos=[f"Confirmation email sent to {user.email}!"])
         elif request.method == "GET":
             # User has been directed to the confirm page
             return render_template("confirm.html")
@@ -109,13 +105,9 @@ def reset_password(data=None):
         try:
             email_address = unserialize(data, max_age=1800)
         except (BadTimeSignature, SignatureExpired):
-            return render_template(
-                "reset_password.html", errors=["Your link has expired"]
-            )
+            return render_template("reset_password.html", errors=["Your link has expired"])
         except (BadSignature, TypeError, base64.binascii.Error):
-            return render_template(
-                "reset_password.html", errors=["Your reset token is invalid"]
-            )
+            return render_template("reset_password.html", errors=["Your reset token is invalid"])
 
         if request.method == "GET":
             return render_template("reset_password.html", mode="set")
@@ -132,9 +124,7 @@ def reset_password(data=None):
 
             pass_short = len(password) == 0
             if pass_short:
-                return render_template(
-                    "reset_password.html", errors=["Please pick a longer password"]
-                )
+                return render_template("reset_password.html", errors=["Please pick a longer password"])
 
             user.password = password
             db.session.commit()
@@ -157,9 +147,7 @@ def reset_password(data=None):
         if not user:
             return render_template(
                 "reset_password.html",
-                infos=[
-                    "If that account exists you will receive an email, please check your inbox"
-                ],
+                infos=["If that account exists you will receive an email, please check your inbox"],
             )
 
         if user.oauth_id:
@@ -174,9 +162,7 @@ def reset_password(data=None):
 
         return render_template(
             "reset_password.html",
-            infos=[
-                "If that account exists you will receive an email, please check your inbox"
-            ],
+            infos=["If that account exists you will receive an email, please check your inbox"],
         )
     return render_template("reset_password.html")
 
@@ -189,8 +175,11 @@ def register():
     if current_user.authed():
         return redirect(url_for("challenges.listing"))
 
+    registration_text = markup(build_markdown(get_config("ctf_registration_text", "")))
+
     num_users_limit = int(get_config("num_users", default=0))
     num_users = Users.query.filter_by(banned=False, hidden=False).count()
+
     if num_users_limit and num_users >= num_users_limit:
         abort(
             403,
@@ -201,31 +190,32 @@ def register():
         name = request.form.get("name", "").strip()
         email_address = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "").strip()
+        confirmation = request.form.get("confirm", "").strip()
+
+        phone = request.form.get("phone", "").strip()
+        birthdate_text = request.form.get("birthdate", "").strip()
+
+        realname = request.form.get("realname", "").strip()
+        affiliation = request.form.get("affiliation", "").strip()
+        grade = request.form.get("grade", "").strip()
+        classroom = request.form.get("classroom", "").strip()
+        number = request.form.get("number", "").strip()
 
         website = request.form.get("website")
-        affiliation = request.form.get("affiliation")
         country = request.form.get("country")
         registration_code = str(request.form.get("registration_code", ""))
 
-        name_len = len(name) == 0
-        names = (
-            Users.query.add_columns(Users.name, Users.id).filter_by(name=name).first()
-        )
-        emails = (
-            Users.query.add_columns(Users.email, Users.id)
-            .filter_by(email=email_address)
-            .first()
-        )
+        agree = request.form.get("agree")
+
+        names = Users.query.add_columns(Users.name, Users.id).filter_by(name=name).first()
+        emails = Users.query.add_columns(Users.email, Users.id).filter_by(email=email_address).first()
         pass_short = len(password) == 0
         pass_long = len(password) > 128
         valid_email = validators.validate_email(email_address)
         team_name_email_check = validators.validate_email(name)
 
         if get_config("registration_code"):
-            if (
-                registration_code.lower()
-                != str(get_config("registration_code", default="")).lower()
-            ):
+            if registration_code.lower() != str(get_config("registration_code", default="")).lower():
                 errors.append("The registration code you entered was incorrect")
 
         # Process additional user fields
@@ -248,99 +238,140 @@ def register():
         if country:
             try:
                 validators.validate_country_code(country)
-                valid_country = True
             except ValidationError:
-                valid_country = False
-        else:
-            valid_country = True
+                errors.append("잘못된 국가입니다.")
 
-        if website:
-            valid_website = validators.validate_url(website)
-        else:
-            valid_website = True
-
-        if affiliation:
-            valid_affiliation = len(affiliation) < 128
-        else:
-            valid_affiliation = True
-
+        if not agree:
+            errors.append("상기 내용이 사실임을 확인해주세요.")
         if not valid_email:
-            errors.append("Please enter a valid email address")
+            errors.append("유효한 이메일 주소를 입력하세요.")
         if email.check_email_is_whitelisted(email_address) is False:
-            errors.append("Your email address is not from an allowed domain")
+            errors.append("귀하의 이메일 주소는 허용된 도메인의 주소가 아닙니다.")
         if names:
-            errors.append("That user name is already taken")
+            errors.append("해당 닉네임은 이미 사용 중입니다.")
         if team_name_email_check is True:
-            errors.append("Your user name cannot be an email address")
+            errors.append("사용자 이름은 이메일 주소일 수 없습니다.")
         if emails:
-            errors.append("That email has already been used")
+            errors.append("해당 이메일은 이미 사용되었습니다.")
+        if password != confirmation:
+            errors.append("비밀번호가 일치하지 않습니다.")
         if pass_short:
-            errors.append("Pick a longer password")
+            errors.append("비밀번호가 너무 짧습니다.")
         if pass_long:
-            errors.append("Pick a shorter password")
-        if name_len:
-            errors.append("Pick a longer user name")
-        if valid_website is False:
-            errors.append("Websites must be a proper URL starting with http or https")
-        if valid_country is False:
-            errors.append("Invalid country")
-        if valid_affiliation is False:
-            errors.append("Please provide a shorter affiliation")
+            errors.append("비밀번호가 너무 깁니다.")
+        if len(name) == 0:
+            errors.append("닉네임이 너무 짧습니다.")
+        if len(name) > 128:
+            errors.append("닉네임이 너무 깁니다.")
+        if len(realname) == 0:
+            errors.append("이름이 너무 짧습니다.")
+        if len(realname) > 128:
+            errors.append("이름이 너무 깁니다.")
+        if website and not validators.validate_url(website):
+            errors.append("웹사이트는 http 또는 https로 시작하는 올바른 URL이어야 합니다.")
+        if affiliation and len(affiliation) >= 128:
+            errors.append("소속 이름이 너무 깁니다.")
+        if phone and not validators.validate_phone(phone):
+            errors.append("올바른 전화번호가 아닙니다.")
+        if birthdate_text:
+            try:
+                birthdate = datetime.strptime(birthdate_text, "%Y-%m-%d")
+            except ValueError:
+                errors.append("올바른 생년월일이 아닙니다.")
+        if grade:
+            try:
+                grade = int(grade)
+
+                if grade < 1 or grade > 3:
+                    raise ValueError
+            except ValueError:
+                errors.append("올바른 학년이 아닙니다.")
+
+        if classroom:
+            try:
+                classroom = int(classroom)
+
+                if classroom < 1 or classroom > 15:
+                    raise ValueError
+            except ValueError:
+                errors.append("올바른 반을 입력하세요.")
+
+        if number:
+            try:
+                number = int(number)
+
+                if number < 1 or number > 40:
+                    raise ValueError
+            except ValueError:
+                errors.append("올바른 번호를 입력하세요.")
 
         if len(errors) > 0:
             return render_template(
-                "register.html",
+                "register.jinja",
                 errors=errors,
                 name=request.form["name"],
                 email=request.form["email"],
-                password=request.form["password"],
+                registration_text=registration_text,
+                affiliation=affiliation,
+                realname=realname,
+                grade=grade,
+                classroom=classroom,
+                number=number,
+                phone=phone,
+                birthdate=birthdate.strftime("%Y-%m-%d") if birthdate else "",
             )
-        else:
-            with app.app_context():
-                user = Users(name=name, email=email_address, password=password)
 
-                if website:
-                    user.website = website
-                if affiliation:
-                    user.affiliation = affiliation
-                if country:
-                    user.country = country
+        with app.app_context():
+            user = Users(name=name, email=email_address, password=password)
 
-                db.session.add(user)
-                db.session.commit()
-                db.session.flush()
+            if website:
+                user.website = website
+            if country:
+                user.country = country
+            if affiliation:
+                user.affiliation = affiliation
+            if realname:
+                user.realname = realname
+            if grade:
+                user.grade = grade
+            if classroom:
+                user.classroom = classroom
+            if number:
+                user.number = number
+            if phone:
+                user.phone = phone
+            if birthdate:
+                user.birthdate = birthdate
 
-                for field_id, value in entries.items():
-                    entry = UserFieldEntries(
-                        field_id=field_id, value=value, user_id=user.id
-                    )
-                    db.session.add(entry)
-                db.session.commit()
+            db.session.add(user)
+            db.session.commit()
+            db.session.flush()
 
-                login_user(user)
+            for field_id, value in entries.items():
+                entry = UserFieldEntries(field_id=field_id, value=value, user_id=user.id)
+                db.session.add(entry)
+            db.session.commit()
 
-                if request.args.get("next") and validators.is_safe_url(
-                    request.args.get("next")
-                ):
-                    return redirect(request.args.get("next"))
+            login_user(user)
 
-                if config.can_send_mail() and get_config(
-                    "verify_emails"
-                ):  # Confirming users is enabled and we can send email.
-                    log(
-                        "registrations",
-                        format="[{date}] {ip} - {name} registered (UNCONFIRMED) with {email}",
-                        name=user.name,
-                        email=user.email,
-                    )
-                    email.verify_email_address(user.email)
-                    db.session.close()
-                    return redirect(url_for("auth.confirm"))
-                else:  # Don't care about confirming users
-                    if (
-                        config.can_send_mail()
-                    ):  # We want to notify the user that they have registered.
-                        email.successful_registration_notification(user.email)
+            if request.args.get("next") and validators.is_safe_url(request.args.get("next")):
+                return redirect(request.args.get("next"))
+
+            if config.can_send_mail() and get_config(
+                "verify_emails"
+            ):  # Confirming users is enabled and we can send email.
+                log(
+                    "registrations",
+                    format="[{date}] {ip} - {name} registered (UNCONFIRMED) with {email}",
+                    name=user.name,
+                    email=user.email,
+                )
+                email.verify_email_address(user.email)
+                db.session.close()
+                return redirect(url_for("auth.confirm"))
+            else:  # Don't care about confirming users
+                if config.can_send_mail():  # We want to notify the user that they have registered.
+                    email.successful_registration_notification(user.email)
 
         log(
             "registrations",
@@ -353,9 +384,13 @@ def register():
         if is_teams_mode():
             return redirect(url_for("teams.private"))
 
-        return redirect(url_for("challenges.listing"))
+        return redirect(url_for("views.notifications"))
     else:
-        return render_template("register.html", errors=errors)
+        return render_template(
+            "register.jinja",
+            errors=errors,
+            registration_text=registration_text,
+        )
 
 
 @auth.route("/login", methods=["POST", "GET"])
@@ -386,9 +421,7 @@ def login():
                 log("logins", "[{date}] {ip} - {name} logged in", name=user.name)
 
                 db.session.close()
-                if request.args.get("next") and validators.is_safe_url(
-                    request.args.get("next")
-                ):
+                if request.args.get("next") and validators.is_safe_url(request.args.get("next")):
                     return redirect(request.args.get("next"))
                 return redirect(url_for("challenges.listing"))
 
@@ -436,8 +469,10 @@ def oauth_login():
         )
         return redirect(url_for("auth.login"))
 
-    redirect_url = "{endpoint}?response_type=code&client_id={client_id}&scope={scope}&state={state}".format(
-        endpoint=endpoint, client_id=client_id, scope=scope, state=session["nonce"]
+    redirect_url = (
+        "{endpoint}?response_type=code&client_id={client_id}&scope={scope}&state={state}".format(
+            endpoint=endpoint, client_id=client_id, scope=scope, state=session["nonce"]
+        )
     )
     return redirect(redirect_url)
 
@@ -460,9 +495,7 @@ def oauth_redirect():
         )
 
         client_id = get_app_config("OAUTH_CLIENT_ID") or get_config("oauth_client_id")
-        client_secret = get_app_config("OAUTH_CLIENT_SECRET") or get_config(
-            "oauth_client_secret"
-        )
+        client_secret = get_app_config("OAUTH_CLIENT_SECRET") or get_config("oauth_client_secret")
         headers = {"content-type": "application/x-www-form-urlencoded"}
         data = {
             "code": oauth_code,
@@ -526,9 +559,7 @@ def oauth_redirect():
                 team = Teams.query.filter_by(oauth_id=team_id).first()
                 if team is None:
                     num_teams_limit = int(get_config("num_teams", default=0))
-                    num_teams = Teams.query.filter_by(
-                        banned=False, hidden=False
-                    ).count()
+                    num_teams = Teams.query.filter_by(banned=False, hidden=False).count()
                     if num_teams_limit and num_teams >= num_teams_limit:
                         abort(
                             403,
@@ -567,9 +598,7 @@ def oauth_redirect():
             return redirect(url_for("auth.login"))
     else:
         log("logins", "[{date}] {ip} - Received redirect without OAuth code")
-        error_for(
-            endpoint="auth.login", message="Received redirect without OAuth code."
-        )
+        error_for(endpoint="auth.login", message="Received redirect without OAuth code.")
         return redirect(url_for("auth.login"))
 
 

@@ -1,0 +1,72 @@
+@use "bootstrap/scss/bootstrap" as * with (
+  $info: #5c728f
+);
+
+@use "includes/components/table";
+@use "includes/components/jumbotron";
+@use "includes/components/challenge";
+@use "includes/components/graphs";
+
+@use "includes/utils/fonts";
+@use "includes/utils/opacity";
+@use "includes/utils/min-height";
+@use "includes/utils/cursors";
+@use "includes/utils/lolight";
+
+@use "includes/icons/award-icons";
+@use "includes/icons/flag-icons";
+
+@use "hsoc";
+@use "hsoc2";
+
+main {
+  padding-top: 2rem;
+}
+
+h1,
+h2 {
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+
+blockquote {
+  border-left: 4px solid $secondary;
+  padding-left: 15px;
+}
+
+.fa-spin.spinner {
+  text-align: center;
+  opacity: 0.5;
+}
+
+.badge-notification {
+  vertical-align: top;
+  margin-left: -1.5em;
+  font-size: 50%;
+}
+
+select.form-control {
+  height: auto !important;
+}
+
+.form-select {
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e")
+    no-repeat right 0.75rem center/8px 10px !important;
+}
+
+.toast {
+  border-radius: 0;
+  background-color: #292929;
+  box-shadow: 2px 2px 5px #292929;
+  color: white;
+  border: none;
+}
+
+.toast-header{
+  background-color: #1C5BFF;
+  color: white;
+}
+
+.toast-header>button{
+  color: white;
+}

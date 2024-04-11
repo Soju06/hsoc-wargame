@@ -178,7 +178,6 @@ def export_csv():
 def config():
     # Clear the config cache so that we don't get stale values
     clear_config()
-
     configs = Configs.query.all()
     configs = {c.key: get_config(c.key) for c in configs}
 

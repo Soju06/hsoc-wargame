@@ -1,7 +1,7 @@
 from flask_babel import lazy_gettext as _l
-from wtforms import PasswordField, StringField
-from wtforms.fields.html5 import EmailField
-from wtforms.validators import InputRequired
+from wtforms import PasswordField, StringField, BooleanField
+from wtforms.fields.html5 import EmailField, DateField, IntegerField
+from wtforms.validators import InputRequired, NumberRange, DataRequired
 
 from CTFd.forms import BaseForm
 from CTFd.forms.fields import SubmitField
@@ -15,11 +15,34 @@ from CTFd.forms.users import (
 
 def RegistrationForm(*args, **kwargs):
     class _RegistrationForm(BaseForm):
-        name = StringField(
-            _l("User Name"), validators=[InputRequired()], render_kw={"autofocus": True}
-        )
+        name = StringField(_l("Nickname"), validators=[InputRequired()], render_kw={"autofocus": True})
         email = EmailField(_l("Email"), validators=[InputRequired()])
         password = PasswordField(_l("Password"), validators=[InputRequired()])
+        confirm = PasswordField(_l("Confirm Password"), validators=[InputRequired()])
+
+        phone = StringField(_l("Phone Number"), validators=[InputRequired()])
+        birthdate = DateField(_l("Birthdate"), format="%Y-%m-%d", validators=[InputRequired()])
+
+        realname = StringField(_l("Name"), validators=[InputRequired()])
+        affiliation = StringField(_l("Affiliation"), validators=[InputRequired()])
+        grade = IntegerField(
+            _l("Grade"),
+            validators=[InputRequired(), NumberRange(min=1, max=3)],
+            render_kw={"min": 1, "max": 3},
+        )
+        classroom = IntegerField(
+            _l("Classroom"),
+            validators=[InputRequired(), NumberRange(min=1, max=15)],
+            render_kw={"min": 1, "max": 15},
+        )
+        number = IntegerField(
+            _l("Number"),
+            validators=[InputRequired(), NumberRange(min=1, max=40)],
+            render_kw={"min": 1, "max": 40},
+        )
+
+        agree = BooleanField(_l("Agree"), validators=[DataRequired()])
+
         submit = SubmitField(_l("Submit"))
 
         @property
@@ -49,14 +72,10 @@ class ConfirmForm(BaseForm):
 
 
 class ResetPasswordRequestForm(BaseForm):
-    email = EmailField(
-        _l("Email"), validators=[InputRequired()], render_kw={"autofocus": True}
-    )
+    email = EmailField(_l("Email"), validators=[InputRequired()], render_kw={"autofocus": True})
     submit = SubmitField(_l("Submit"))
 
 
 class ResetPasswordForm(BaseForm):
-    password = PasswordField(
-        _l("Password"), validators=[InputRequired()], render_kw={"autofocus": True}
-    )
+    password = PasswordField(_l("Password"), validators=[InputRequired()], render_kw={"autofocus": True})
     submit = SubmitField(_l("Submit"))

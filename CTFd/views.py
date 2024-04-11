@@ -83,23 +83,18 @@ def setup():
             user_mode = request.form.get("user_mode", USERS_MODE)
             set_config("ctf_name", ctf_name)
             set_config("ctf_description", ctf_description)
+            set_config("ctf_registration_text", "")
             set_config("user_mode", user_mode)
 
             # Settings
             challenge_visibility = ChallengeVisibilityTypes(
-                request.form.get(
-                    "challenge_visibility", default=ChallengeVisibilityTypes.PRIVATE
-                )
+                request.form.get("challenge_visibility", default=ChallengeVisibilityTypes.PRIVATE)
             )
             account_visibility = AccountVisibilityTypes(
-                request.form.get(
-                    "account_visibility", default=AccountVisibilityTypes.PUBLIC
-                )
+                request.form.get("account_visibility", default=AccountVisibilityTypes.PUBLIC)
             )
             score_visibility = ScoreVisibilityTypes(
-                request.form.get(
-                    "score_visibility", default=ScoreVisibilityTypes.PUBLIC
-                )
+                request.form.get("score_visibility", default=ScoreVisibilityTypes.PUBLIC)
             )
             registration_visibility = RegistrationVisibilityTypes(
                 request.form.get(
@@ -149,16 +144,8 @@ def setup():
             password = request.form["password"]
 
             name_len = len(name) == 0
-            names = (
-                Users.query.add_columns(Users.name, Users.id)
-                .filter_by(name=name)
-                .first()
-            )
-            emails = (
-                Users.query.add_columns(Users.email, Users.id)
-                .filter_by(email=email)
-                .first()
-            )
+            names = Users.query.add_columns(Users.name, Users.id).filter_by(name=name).first()
+            emails = Users.query.add_columns(Users.email, Users.id).filter_by(email=email).first()
             pass_short = len(password) == 0
             pass_long = len(password) > 128
             valid_email = validators.validate_email(request.form["email"])
@@ -189,9 +176,7 @@ def setup():
                     state=serialize(generate_nonce()),
                 )
 
-            admin = Admins(
-                name=name, email=email, password=password, type="admin", hidden=True
-            )
+            admin = Admins(name=name, email=email, password=password, type="admin", hidden=True)
 
             # Create an empty index page
             page = Pages(title=None, route="index", content="", draft=False)
@@ -255,9 +240,7 @@ def setup():
                 DEFAULT_SUCCESSFUL_REGISTRATION_EMAIL_BODY,
             )
 
-            set_config(
-                "user_creation_email_subject", DEFAULT_USER_CREATION_EMAIL_SUBJECT
-            )
+            set_config("user_creation_email_subject", DEFAULT_USER_CREATION_EMAIL_SUBJECT)
             set_config("user_creation_email_body", DEFAULT_USER_CREATION_EMAIL_BODY)
 
             set_config("password_reset_subject", DEFAULT_PASSWORD_RESET_SUBJECT)
@@ -375,7 +358,13 @@ def settings():
         email=user.email,
         language=user.language,
         website=user.website,
+        phone=user.phone,
+        birthdate=user.birthdate.strftime("%Y-%m-%d") if user.birthdate else "",
+        realname=user.realname,
         affiliation=user.affiliation,
+        grade=user.grade,
+        classroom=user.classroom,
+        number=user.number,
         country=user.country,
         tokens=tokens,
         prevent_name_change=prevent_name_change,
@@ -467,10 +456,7 @@ def files(path):
                 team = Teams.query.filter_by(id=team_id).first()
 
                 # Check user is admin if challenge_visibility is admins only
-                if (
-                    get_config(ConfigTypes.CHALLENGE_VISIBILITY) == "admins"
-                    and user.type != "admin"
-                ):
+                if get_config(ConfigTypes.CHALLENGE_VISIBILITY) == "admins" and user.type != "admin":
                     abort(403)
 
                 # Check that the user exists and isn't banned
@@ -545,15 +531,6 @@ def themes_beta(theme, path):
         if os.path.isfile(cand_path):
             return send_file(cand_path)
     abort(404)
-
-
-@views.route("/healthcheck")
-def healthcheck():
-    if check_database() is False:
-        return "ERR", 500
-    if check_config() is False:
-        return "ERR", 500
-    return "OK", 200
 
 
 @views.route("/robots.txt")

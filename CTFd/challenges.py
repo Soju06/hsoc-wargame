@@ -1,6 +1,7 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from CTFd.constants.config import ChallengeVisibilityTypes, Configs
+from CTFd.utils import get_config
 from CTFd.utils.config import is_teams_mode
 from CTFd.utils.dates import ctf_ended, ctf_paused, ctf_started
 from CTFd.utils.decorators import (
@@ -11,6 +12,8 @@ from CTFd.utils.decorators import (
 from CTFd.utils.decorators.visibility import check_challenge_visibility
 from CTFd.utils.helpers import get_errors, get_infos
 from CTFd.utils.user import authed, get_current_team
+
+from CTFd.utils.logging import log
 
 challenges = Blueprint("challenges", __name__)
 
@@ -34,15 +37,15 @@ def listing():
     errors = get_errors()
 
     if Configs.challenge_visibility == ChallengeVisibilityTypes.ADMINS:
-        infos.append("Challenge Visibility is set to Admins Only")
+        infos.append("대회가 준비중입니다.")
 
     if ctf_started() is False:
-        errors.append(f"{Configs.ctf_name} has not started yet")
+        errors.append(f"대회가 아직 시작되지 않았습니다.")
 
     if ctf_paused() is True:
-        infos.append(f"{Configs.ctf_name} is paused")
+        infos.append(f"대회가 종료되었습니다.")
 
     if ctf_ended() is True:
-        infos.append(f"{Configs.ctf_name} has ended")
+        infos.append(f"대회가 종료되었습니다.")
 
     return render_template("challenges.html", infos=infos, errors=errors)

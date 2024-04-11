@@ -1,3 +1,4 @@
+import marshmallow
 from marshmallow import ValidationError, post_dump, pre_load, validate
 from marshmallow.fields import Nested
 from marshmallow_sqlalchemy import field_for
@@ -19,14 +20,14 @@ class UserSchema(ma.ModelSchema):
         dump_only = ("id", "oauth_id", "created", "team_id")
         load_only = ("password",)
 
+        datetimeformat = "%Y-%m-%d"
+
     name = field_for(
         Users,
         "name",
         required=True,
         allow_none=False,
-        validate=[
-            validate.Length(min=1, max=128, error="User names must not be empty")
-        ],
+        validate=[validate.Length(min=1, max=128, error="User names must not be empty")],
     )
     email = field_for(
         Users,
@@ -53,9 +54,10 @@ class UserSchema(ma.ModelSchema):
     language = field_for(Users, "language", validate=[validate_language])
     country = field_for(Users, "country", validate=[validate_country_code])
     password = field_for(Users, "password", required=True, allow_none=False)
-    fields = Nested(
-        UserFieldEntriesSchema, partial=True, many=True, attribute="field_entries"
-    )
+
+    birthdate = marshmallow.fields.DateTime(format="%Y-%m-%d")
+
+    fields = Nested(UserFieldEntriesSchema, partial=True, many=True, attribute="field_entries")
 
     @pre_load
     def validate_name(self, data):
@@ -70,9 +72,7 @@ class UserSchema(ma.ModelSchema):
             user_id = data.get("id")
             if user_id:
                 if existing_user and existing_user.id != user_id:
-                    raise ValidationError(
-                        "User name has already been taken", field_names=["name"]
-                    )
+                    raise ValidationError("User name has already been taken", field_names=["name"])
             else:
                 if existing_user:
                     if current_user:
@@ -81,22 +81,16 @@ class UserSchema(ma.ModelSchema):
                                 "User name has already been taken", field_names=["name"]
                             )
                     else:
-                        raise ValidationError(
-                            "User name has already been taken", field_names=["name"]
-                        )
+                        raise ValidationError("User name has already been taken", field_names=["name"])
         else:
             if name == current_user.name:
                 return data
             else:
                 name_changes = get_config("name_changes", default=True)
                 if bool(name_changes) is False:
-                    raise ValidationError(
-                        "Name changes are disabled", field_names=["name"]
-                    )
+                    raise ValidationError("Name changes are disabled", field_names=["name"])
                 if existing_user:
-                    raise ValidationError(
-                        "User name has already been taken", field_names=["name"]
-                    )
+                    raise ValidationError("User name has already been taken", field_names=["name"])
 
     @pre_load
     def validate_email(self, data):
@@ -111,9 +105,7 @@ class UserSchema(ma.ModelSchema):
             user_id = data.get("id")
             if user_id:
                 if existing_user and existing_user.id != user_id:
-                    raise ValidationError(
-                        "Email address has already been used", field_names=["email"]
-                    )
+                    raise ValidationError("Email address has already been used", field_names=["email"])
             else:
                 if existing_user:
                     if current_user:
@@ -137,18 +129,12 @@ class UserSchema(ma.ModelSchema):
                         "Please confirm your current password", field_names=["confirm"]
                     )
 
-                test = verify_password(
-                    plaintext=confirm, ciphertext=current_user.password
-                )
+                test = verify_password(plaintext=confirm, ciphertext=current_user.password)
                 if test is False:
-                    raise ValidationError(
-                        "Your previous password is incorrect", field_names=["confirm"]
-                    )
+                    raise ValidationError("Your previous password is incorrect", field_names=["confirm"])
 
                 if existing_user:
-                    raise ValidationError(
-                        "Email address has already been used", field_names=["email"]
-                    )
+                    raise ValidationError("Email address has already been used", field_names=["email"])
                 if check_email_is_whitelisted(email) is False:
                     raise ValidationError(
                         "Email address is not from an allowed domain",
@@ -167,20 +153,14 @@ class UserSchema(ma.ModelSchema):
             pass
         else:
             if password and (bool(confirm) is False):
-                raise ValidationError(
-                    "Please confirm your current password", field_names=["confirm"]
-                )
+                raise ValidationError("Please confirm your current password", field_names=["confirm"])
 
             if password and confirm:
-                test = verify_password(
-                    plaintext=confirm, ciphertext=target_user.password
-                )
+                test = verify_password(plaintext=confirm, ciphertext=target_user.password)
                 if test is True:
                     return data
                 else:
-                    raise ValidationError(
-                        "Your previous password is incorrect", field_names=["confirm"]
-                    )
+                    raise ValidationError("Your previous password is incorrect", field_names=["confirm"])
             else:
                 data.pop("password", None)
                 data.pop("confirm", None)
@@ -270,9 +250,7 @@ class UserSchema(ma.ModelSchema):
             # Extremely dirty hack to prevent deleting previously provided data.
             # This needs a better soln.
             entries = (
-                UserFieldEntries.query.options(load_only("id"))
-                .filter_by(user_id=current_user.id)
-                .all()
+                UserFieldEntries.query.options(load_only("id")).filter_by(user_id=current_user.id).all()
             )
             for entry in entries:
                 if entry.id not in provided_ids:
@@ -304,9 +282,7 @@ class UserSchema(ma.ModelSchema):
         # Rebuild fuilds
         fields = data.get("fields")
         if fields:
-            data["fields"] = [
-                field for field in fields if field["field_id"] not in removed_field_ids
-            ]
+            data["fields"] = [field for field in fields if field["field_id"] not in removed_field_ids]
 
     views = {
         "user": [
@@ -326,7 +302,13 @@ class UserSchema(ma.ModelSchema):
             "email",
             "language",
             "country",
-            "affiliation",
+            "phone",
+            "birthdate",
+            # "realname",
+            # "affiliation",
+            # "grade",
+            # "classroom",
+            # "number",
             "bracket",
             "id",
             "oauth_id",
@@ -342,7 +324,13 @@ class UserSchema(ma.ModelSchema):
             "banned",
             "email",
             "language",
+            "phone",
+            "birthdate",
+            "realname",
             "affiliation",
+            "grade",
+            "classroom",
+            "number",
             "secret",
             "bracket",
             "hidden",
